@@ -1,14 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
-</head>
-<body>
-  <h1>sjlfjsalfj</h1>    
+    <title>Data Rendering Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* styles.css */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .progress-container {
+            width: 80%;
+            max-width: 500px;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #76c7c0;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        #progress-text {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>jianzhi个苹果</h1>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>日期</th>
+                <th>订单号</th>
+                <th>收入</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 数据将动态插入到这里 -->
+        </tbody>
+    </table>
+
+
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <p id="progress-text">0%</p>
+
+
+    <script>
+        const {
+            createClient
+        } = supabase;
+        const supabaseClient = createClient('https://nrkepcamdijtioxltaqr.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
+        );
+
+        async function fetchData() {
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from('NiuMaFei')
+                .select();
+
+            if (error) {
+                console.error('Error:', error);
+            } else {
+                console.log('Data:', data);
+                renderData(data); // 调用渲染函数
+                updateProgress(data); // 更新进度条
+            }
+        }
+
+        function renderData(data) {
+            const tbody = document.querySelector('#data-table tbody');
+            tbody.innerHTML = ''; // 清空现有内容
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+
+                // 创建并填充单元格
+                const idCell = document.createElement('td');
+                idCell.textContent = item.id;
+                row.appendChild(idCell);
+
+                const dateCell = document.createElement('td');
+                dateCell.textContent = item.date;
+                row.appendChild(dateCell);
+
+                const orderNumberCell = document.createElement('td');
+                orderNumberCell.textContent = item.order_number;
+                row.appendChild(orderNumberCell);
+
+                const earningCell = document.createElement('td');
+                earningCell.textContent = item.earning;
+                row.appendChild(earningCell);
+
+                // 将行添加到表格中
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateProgress(data) {
+            const totalEarning = data.reduce((sum, item) => sum + item.earning, 0);
+            const iphonePrice = 4499;
+            const percentage = (totalEarning / iphonePrice) * 100;
+
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            progressBar.style.width = `${Math.min(percentage, 100)}%`;
+            progressText.textContent = `${percentage.toFixed(2)}%`;
+        }
+
+        fetchData(); // 调用异步函数
+    </script>
 </body>
+
 </html>
