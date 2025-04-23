@@ -86,11 +86,11 @@
 
 
 
-    <div class="progress-container">
+<!--     <div class="progress-container">
         <div class="progress-bar" id="progress-bar"></div>
-    </div>
-    <p id="progress-text">0%</p>
-    <img src="mmexport1739335598623.jpg">
+    </div> -->
+<!--     <p id="progress-text">0%</p> -->
+<!--     <img src="mmexport1739335598623.jpg"> -->
     <script>
         const {
             createClient
@@ -145,17 +145,17 @@
             });
         }
 
-        function updateProgress(data) {
-            const totalEarning = data.reduce((sum, item) => sum + item.earning, 0);
-            const iphonePrice = 4499;
-            const percentage = (totalEarning / iphonePrice) * 100;
+        // function updateProgress(data) {
+        //     const totalEarning = data.reduce((sum, item) => sum + item.earning, 0);
+        //     const iphonePrice = 4499;
+        //     const percentage = (totalEarning / iphonePrice) * 100;
 
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
+        //     const progressBar = document.getElementById('progress-bar');
+        //     const progressText = document.getElementById('progress-text');
 
-            progressBar.style.width = `${Math.min(percentage, 100)}%`;
-            progressText.textContent = `${percentage.toFixed(2)}%`;
-        }
+        //     progressBar.style.width = `${Math.min(percentage, 100)}%`;
+        //     progressText.textContent = `${percentage.toFixed(2)}%`;
+        // }
 
         fetchData(); // 调用异步函数
     </script>
