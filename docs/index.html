@@ -140,7 +140,7 @@
 
                 const dateCell = document.createElement('td');
                 // dateCell.textContent = item.understand ? '是':'否';
-                btnCell.innerHTML = `
+                dateCell.innerHTML = `
           <div class="btn-group">
             <button class="${item.understand ? 'active' : ''}" 
                     onclick="updateUnderstand('${item.word}', true)">
