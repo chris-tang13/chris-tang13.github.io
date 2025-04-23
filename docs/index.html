@@ -104,7 +104,7 @@
                 data,
                 error
             } = await supabaseClient
-                .from('NiuMaFei')
+                .from('unknown_words')
                 .select();
 
             if (error) {
@@ -125,20 +125,20 @@
 
                 // 创建并填充单元格
                 const idCell = document.createElement('td');
-                idCell.textContent = item.id;
+                idCell.textContent = item.word;
                 row.appendChild(idCell);
 
                 const dateCell = document.createElement('td');
-                dateCell.textContent = item.date;
+                dateCell.textContent = item.understand;
                 row.appendChild(dateCell);
 
-                const orderNumberCell = document.createElement('td');
-                orderNumberCell.textContent = item.order_number;
-                row.appendChild(orderNumberCell);
+                // const orderNumberCell = document.createElement('td');
+                // orderNumberCell.textContent = item.order_number;
+                // row.appendChild(orderNumberCell);
 
-                const earningCell = document.createElement('td');
-                earningCell.textContent = item.earning;
-                row.appendChild(earningCell);
+                // const earningCell = document.createElement('td');
+                // earningCell.textContent = item.earning;
+                // row.appendChild(earningCell);
 
                 // 将行添加到表格中
                 tbody.appendChild(row);
