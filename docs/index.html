@@ -94,6 +94,12 @@
     </div>
     
     <script>
+        const {
+            createClient
+        } = supabase;
+        const supabaseClient = createClient('https://nrkepcamdijtioxltaqr.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
+        );
       
         document.addEventListener('DOMContentLoaded', function() {
             const wordContainer = document.getElementById('wordContainer');
@@ -132,32 +138,10 @@
             }
             
             // 模拟从API获取数据 - 实际使用时替换为真实的API调用
-            function fetchWords() {
-                // 这里是模拟API响应
-                // const mockApiResponse = {
-                //     success: true,
-                //     words: [
-                //         'apple', 'banana', 'computer', 'dinosaur', 'elephant',
-                //         'fantastic', 'giraffe', 'happiness', 'important', 'jungle',
-                //         'knowledge', 'language', 'mountain', 'notebook', 'orange',
-                //         'pencil', 'question', 'rainbow', 'sunshine', 'tomorrow',
-                //         'umbrella', 'vacation', 'wonderful', 'xylophone', 'yellow', 'zebra'
-                //     ]
-                // };
-                
-                // // 模拟API延迟
-                // setTimeout(() => {
-                //     words = mockApiResponse.words;
-                //     renderWords(words);
-                // }, 800);
-                const {
-            createClient
-        } = supabase;
-        const supabaseClient = createClient('https://nrkepcamdijtioxltaqr.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
-        );
 
-        async function fetchData() {
+                
+
+        async function fetchWords() {
             const {
                 data,
                 error
@@ -177,25 +161,8 @@
             }
         }
                 
-                // 实际API调用示例（取消注释并替换为你的真实API）：
-                /*
-                fetch('https://your-api-endpoint.com/unknown-words')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            words = data.words || [];
-                            renderWords(words);
-                        } else {
-                            console.error('API返回错误:', data.message);
-                            wordContainer.innerHTML = '<div class="loading">加载单词失败</div>';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('获取单词失败:', error);
-                        wordContainer.innerHTML = '<div class="loading">加载单词失败，请检查网络</div>';
-                    });
-                */
-            }
+
+            
             
             // 按字母排序
             sortBtn.addEventListener('click', function() {
