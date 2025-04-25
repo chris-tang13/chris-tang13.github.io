@@ -100,6 +100,23 @@
         const supabaseClient = createClient('https://nrkepcamdijtioxltaqr.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
         );
+        async function addRememberedWord(item){
+            const { data, error } = await supabaseClient
+  .from('remember_words_activity_records')
+  .insert([
+    { word: item},
+  ])
+  .select();
+          
+
+            if (error) {
+                console.error('Error:', error);
+            } else {
+                console.log('record  added:',data);
+                
+            }
+            
+        }
       
         document.addEventListener('DOMContentLoaded', function() {
             const wordContainer = document.getElementById('wordContainer');
@@ -131,6 +148,7 @@
                         this.style.opacity = '0.5';
                         this.style.textDecoration = 'line-through';
                         // 这里可以添加API调用将单词标记为已认识
+                        addRememberedWord(word);
                     });
                     
                     wordContainer.appendChild(wordBox);
