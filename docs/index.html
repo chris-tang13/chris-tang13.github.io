@@ -233,8 +233,11 @@
             });
 
             // 初始化页面
-            fetchTodayReadWords();
-            fetchWords();
+            async funtion initPage(){
+                await fetchTodayReadWords();
+                await fetchWords();
+            }
+            initPage();
         });
     </script>
 </body>
