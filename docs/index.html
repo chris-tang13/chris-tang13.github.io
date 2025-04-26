@@ -141,8 +141,8 @@
                 const { data, error } = await supabaseClient
                     .from('remember_words_activity_records')
                     .select('word')
-                    .gte('read_time', today.toISOString()) // 大于等于今天0点
-                    .lt('read_time', tomorrow.toISOString()); // 小于明天0点
+                    .gte('created_at', today.toISOString()) // 大于等于今天0点
+                    .lt('created_at', tomorrow.toISOString()); // 小于明天0点
 
                 if (error) {
                     console.error('Error:', error);
