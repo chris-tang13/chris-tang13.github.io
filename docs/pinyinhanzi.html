@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>汉字拼音学习</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script> -->
+
+    <script src="https://unpkg.com/pinyin-pro@3.18.2/dist/index.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,6 +21,7 @@
             margin: 0;
             background-color: #f5f5f5;
         }
+
         .container {
             text-align: center;
             background: white;
@@ -24,17 +29,20 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .pinyin {
             font-size: 2rem;
             margin: 1rem 0;
             min-height: 3rem;
         }
+
         .hanzi {
             font-size: 2rem;
             margin: 1rem 0;
             min-height: 3rem;
             display: none;
         }
+
         button {
             padding: 0.5rem 1rem;
             margin: 0.5rem;
@@ -45,11 +53,13 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>汉字拼音学习</h1>
@@ -70,65 +80,69 @@
         const supabaseClient = createClient('https://nrkepcamdijtioxltaqr.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
         );
-        
+
         // 拼音库
         const { pinyin } = pinyinPro;
-        
+
         let words = [];
         let usedIndices = [];
         let currentIndex = -1;
-        
+
         // 从Supabase获取不认识的单词
         async function fetchUnknownWords() {
             try {
                 const { data, error } = await supabaseClient
                     .from('unknown_words')
                     .select('*');
-                
+
                 if (error) throw error;
-                
-                words = data;
+
+                data.forEach(element => {
+                    words.push(element.word);
+                });
+                console.log(words);
                 if (words.length > 0) {
                     showRandomWord();
                 } else {
                     document.getElementById('pinyin').textContent = '没有找到不认识的单词';
                 }
             } catch (err) {
-                console.error('获取单词失败:', err);
+                console.log('获取单词失败:', err);
                 document.getElementById('pinyin').textContent = '获取单词失败';
             }
         }
-        
+
         // 显示随机单词
         function showRandomWord() {
             if (words.length === 0) return;
-            
+
             // 如果所有单词都已显示过，重置已用索引
             if (usedIndices.length >= words.length) {
                 usedIndices = [];
             }
-            
+
             // 获取未使用的随机索引
             let randomIndex;
             do {
                 randomIndex = Math.floor(Math.random() * words.length);
             } while (usedIndices.includes(randomIndex));
-            
+
             usedIndices.push(randomIndex);
             currentIndex = randomIndex;
-            
+
             const word = words[randomIndex];
-            document.getElementById('pinyin').textContent = pinyin(word.hanzi);
-            document.getElementById('hanzi').textContent = word.hanzi;
+            console.log(word)
+            document.getElementById('pinyin').textContent = pinyin(word);
+            document.getElementById('hanzi').textContent = word;
             document.getElementById('hanzi').style.display = 'none';
         }
-        
+
         // 初始化
         document.addEventListener('DOMContentLoaded', fetchUnknownWords);
-        
+
         // 下一个按钮事件
         document.getElementById('nextBtn').addEventListener('click', showRandomWord);
-        
+
         // 显示汉字按钮事件
         document.getElementById('showHanziBtn').addEventListener('click', () => {
             const hanziElement = document.getElementById('hanzi');
@@ -136,4 +150,5 @@
         });
     </script>
 </body>
+
 </html>
