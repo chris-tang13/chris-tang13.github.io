@@ -106,7 +106,7 @@
             counterElement.textContent = counter;
             try {
                 const { data, error } = await supabaseClient
-                    .from('unknown_words')
+                    .from('remember_words_activity_records')
                     .select('*');
 
                 if (error) throw error;
