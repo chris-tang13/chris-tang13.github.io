@@ -106,8 +106,7 @@
             counterElement.textContent = counter;
             try {
                 const { data, error } = await supabaseClient
-                .rpc( 'get_grouped_word_data').execute()
-  .value;
+                .rpc( 'get_grouped_word_data');
                     // .from('remember_words_activity_records')
                     // .select('word,count(word)')
                     // .group('word');
