@@ -4,11 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汉字拼音学习</title>
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script> -->
+    <title>按频次展示生词</title>
 
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/pinyin-pro@3.18.2/dist/index.js"></script>
 
     <style>
@@ -23,17 +21,20 @@
             background-color: #f5f5f5;
         }
 
-        .container, .content-container {
+        .container,
+        .content-container {
             text-align: center;
             background: white;
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        h1{
+
+        h1 {
             font-size: 5rem;
             margin-bottom: 30px;
         }
+
         .pinyin {
             font-size: 6rem;
             margin: 1rem 0;
@@ -61,30 +62,39 @@
         button:hover {
             background-color: #45a049;
         }
+
+        .frequency {
+            font-size: 2rem;
+            color: #666;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 
 <body>
-    <div id="counter" style="position: fixed;bottom:0;right: 10px;width: 100px;height: 100px;border-radius: 50px;background-color: #d41f1f;display: flex;justify-content: center;align-items: center;color:white;font-size: 1.5rem;" ></div>
-    <nav style="position: fixed; top: 0; left: 0; width: 100%; background: #333; color: white; padding: 1rem; z-index: 1000; display: flex; justify-content: center; gap: 2rem;">
+    <div id="counter"
+        style="position: fixed;bottom:0;right: 10px;width: 100px;height: 100px;border-radius: 50px;background-color: #d41f1f;display: flex;justify-content: center;align-items: center;color:white;font-size: 1.5rem;">
+    </div>
+    <nav
+        style="position: fixed; top: 0; left: 0; width: 100%; background: #333; color: white; padding: 1rem; z-index: 1000; display: flex; justify-content: center; gap: 2rem;">
+        <a href="index.html" style="color: white; text-decoration: none; font-size: 1.5rem;">首页</a>
         <a href="notknow.html" style="color: white; text-decoration: none; font-size: 1.5rem;">错词集合</a>
         <a href="pinyinhanzi.html" style="color: white; text-decoration: none; font-size: 1.5rem;">看拼音写字</a>
+        <a href="addword.html" style="color: white; text-decoration: none; font-size: 1.5rem;">添加生词</a>
+        <a href="notknowbyfrequency.html" style="color: white; text-decoration: none; font-size: 1.5rem;">按频次展示</a>
     </nav>
 
     <div class="content-container" style="margin-top: 5rem;">
-        
+        <h1>按频次展示生词</h1>
         <div class="pinyin" id="pinyin"></div>
         <div class="hanzi" id="hanzi"></div>
+        <div class="frequency" id="frequency"></div>
         <button id="nextBtn">下一个</button>
         <button id="showHanziBtn">显示汉字</button>
         <button id="notKnow">不会</button>
     </div>
 
     <script>
-        // 初始化Supabase客户端
-        // const supabaseUrl = 'YOUR_SUPABASE_URL';
-        // const supabaseKey = 'YOUR_SUPABASE_KEY';
-        // const supabase = supabase.createClient(supabaseUrl, supabaseKey);
         const {
             createClient
         } = supabase;
@@ -96,31 +106,30 @@
         const { pinyin } = pinyinPro;
 
         let words = [];
-        let usedIndices = [];
         let currentIndex = -1;
-        let counter=0;
+        let counter = 0;
         const counterElement = document.getElementById('counter');
 
-        // 从Supabase获取不认识的单词
-        async function fetchUnknownWords() {
+        // 从Supabase获取按频次排序的单词
+        async function fetchWordsByFrequency() {
             counterElement.textContent = counter;
             try {
+                // const { data, error } = await supabaseClient
+                //     .from('remember_words_activity_records')
+                //     .select('grouped_word, word_count')
+                //     .order('word_count', { ascending: false });
+
                 const { data, error } = await supabaseClient
-                .rpc( 'get_grouped_word_data');
-                    // .from('remember_words_activity_records')
-                    // .select('word,count(word)')
-                    // .group('word');
+                    .rpc('get_grouped_word_data');
 
                 if (error) throw error;
-                console.log(data);
-                data.forEach(element => {
-                    words.push(element.word);
-                });
+
+                words = data;
                 console.log(words);
                 if (words.length > 0) {
-                    showRandomWord();
+                    showNextWord();
                 } else {
-                    document.getElementById('pinyin').textContent = '没有找到不认识的单词';
+                    document.getElementById('pinyin').textContent = '没有找到生词记录';
                 }
             } catch (err) {
                 console.log('获取单词失败:', err);
@@ -128,29 +137,24 @@
             }
         }
 
-        // 显示随机单词
-        function showRandomWord() {
+        // 显示下一个单词
+        function showNextWord() {
             if (words.length === 0) return;
 
-            // 如果所有单词都已显示过，重置已用索引
-            if (usedIndices.length >= words.length) {
-                usedIndices = [];
+            currentIndex++;
+
+            if (currentIndex >= words.length) {
+                document.getElementById('pinyin').textContent = '所有单词已展示完毕';
+                document.getElementById('hanzi').style.display = 'none';
+                document.getElementById('frequency').textContent = '';
+                return;
             }
 
-            // 获取未使用的随机索引
-            let randomIndex;
-            do {
-                randomIndex = Math.floor(Math.random() * words.length);
-            } while (usedIndices.includes(randomIndex));
-
-            usedIndices.push(randomIndex);
-            currentIndex = randomIndex;
-
-            const word = words[randomIndex];
-            console.log(word)
-            document.getElementById('pinyin').textContent = pinyin(word);
-            document.getElementById('hanzi').textContent = word;
+            const wordObj = words[currentIndex];
+            document.getElementById('pinyin').textContent = pinyin(wordObj.grouped_word);
+            document.getElementById('hanzi').textContent = wordObj.grouped_word;
             document.getElementById('hanzi').style.display = 'none';
+            document.getElementById('frequency').textContent = `出现次数: ${wordObj.word_count}`;
 
             //更新计数器
             counter++;
@@ -158,10 +162,10 @@
         }
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', fetchUnknownWords);
+        document.addEventListener('DOMContentLoaded', fetchWordsByFrequency);
 
         // 下一个按钮事件
-        document.getElementById('nextBtn').addEventListener('click', showRandomWord);
+        document.getElementById('nextBtn').addEventListener('click', showNextWord);
 
         // 显示汉字按钮事件
         document.getElementById('showHanziBtn').addEventListener('click', () => {
@@ -172,16 +176,18 @@
         // 不会按钮事件
         document.getElementById('notKnow').addEventListener('click', async () => {
             try {
-                const word = words[currentIndex];
+                const wordObj = words[currentIndex];
                 const { error } = await supabaseClient
-                    .from('remember_words_activity_records')
-                    .insert([{ word: word }]);
+                .from('remember_words_activity_records')
+                    .insert([{ word: wordObj.grouped_word }]);
                 
+                    
+
                 if (error) throw error;
-                alert('已添加到记忆记录');
+                alert('已更新记忆记录');
             } catch (err) {
-                console.log('添加失败:', err);
-                alert('添加失败');
+                console.log('更新失败:', err);
+                alert('更新失败');
             }
         });
     </script>
