@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字拼音学习</title>
+    
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script> -->
+
+    <script src="https://unpkg.com/pinyin-pro@3.18.2/dist/index.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container, .content-container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1{
+            font-size: 5rem;
+            margin-bottom: 30px;
+        }
+        .pinyin {
+            font-size: 6rem;
+            margin: 1rem 0;
+            min-height: 3rem;
+        }
+
+        .hanzi {
+            font-size: 6rem;
+            margin: 1rem 0;
+            min-height: 3rem;
+            display: none;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            font-size: 2rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="counter" style="position: fixed;bottom:0;right: 10px;width: 100px;height: 100px;border-radius: 50px;background-color: #d41f1f;display: flex;justify-content: center;align-items: center;color:white;font-size: 1.5rem;" ></div>
+    <nav style="position: fixed; top: 0; left: 0; width: 100%; background: #333; color: white; padding: 1rem; z-index: 1000; display: flex; justify-content: center; gap: 2rem;">
+        <a href="notknow.html" style="color: white; text-decoration: none; font-size: 1.5rem;">错词集合</a>
+        <a href="pinyinhanzi.html" style="color: white; text-decoration: none; font-size: 1.5rem;">看拼音写字</a>
+    </nav>
+
+    <div class="content-container" style="margin-top: 5rem;">
+        
+        <div class="pinyin" id="pinyin"></div>
+        <div class="hanzi" id="hanzi"></div>
+        <button id="nextBtn">下一个</button>
+        <button id="showHanziBtn">显示汉字</button>
+        <button id="notKnow">不会</button>
+    </div>
+
+    <script>
+        // 初始化Supabase客户端
+        // const supabaseUrl = 'YOUR_SUPABASE_URL';
+        // const supabaseKey = 'YOUR_SUPABASE_KEY';
+        // const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const {
+            createClient
+        } = supabase;
+        const supabaseClient = createClient('https://nrkepcamdijtioxltaqr.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
+        );
+
+        // 拼音库
+        const { pinyin } = pinyinPro;
+
+        let words = [];
+        let usedIndices = [];
+        let currentIndex = -1;
+        let counter=0;
+        const counterElement = document.getElementById('counter');
+
+        // 从Supabase获取不认识的单词
+        async function fetchUnknownWords() {
+            counterElement.textContent = counter;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('remember_words_activity_records')
+                    .select('word,count(word)')
+                    .group('word');
+
+                if (error) throw error;
+                console.log(data);
+                data.forEach(element => {
+                    words.push(element.word);
+                });
+                console.log(words);
+                if (words.length > 0) {
+                    showRandomWord();
+                } else {
+                    document.getElementById('pinyin').textContent = '没有找到不认识的单词';
+                }
+            } catch (err) {
+                console.log('获取单词失败:', err);
+                document.getElementById('pinyin').textContent = '获取单词失败';
+            }
+        }
+
+        // 显示随机单词
+        function showRandomWord() {
+            if (words.length === 0) return;
+
+            // 如果所有单词都已显示过，重置已用索引
+            if (usedIndices.length >= words.length) {
+                usedIndices = [];
+            }
+
+            // 获取未使用的随机索引
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * words.length);
+            } while (usedIndices.includes(randomIndex));
+
+            usedIndices.push(randomIndex);
+            currentIndex = randomIndex;
+
+            const word = words[randomIndex];
+            console.log(word)
+            document.getElementById('pinyin').textContent = pinyin(word);
+            document.getElementById('hanzi').textContent = word;
+            document.getElementById('hanzi').style.display = 'none';
+
+            //更新计数器
+            counter++;
+            counterElement.textContent = counter;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', fetchUnknownWords);
+
+        // 下一个按钮事件
+        document.getElementById('nextBtn').addEventListener('click', showRandomWord);
+
+        // 显示汉字按钮事件
+        document.getElementById('showHanziBtn').addEventListener('click', () => {
+            const hanziElement = document.getElementById('hanzi');
+            hanziElement.style.display = hanziElement.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // 不会按钮事件
+        document.getElementById('notKnow').addEventListener('click', async () => {
+            try {
+                const word = words[currentIndex];
+                const { error } = await supabaseClient
+                    .from('remember_words_activity_records')
+                    .insert([{ word: word }]);
+                
+                if (error) throw error;
+                alert('已添加到记忆记录');
+            } catch (err) {
+                console.log('添加失败:', err);
+                alert('添加失败');
+            }
+        });
+    </script>
+</body>
+
+</html>
