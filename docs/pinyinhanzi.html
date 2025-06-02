@@ -153,6 +153,10 @@
             //更新计数器
             counter++;
             counterElement.textContent = counter;
+const utterance = new SpeechSynthesisUtterance(`第${counter}个生词`);
+            utterance.lang = 'zh-CN';
+            speechSynthesis.speak(utterance);
+            
         }
 
         // 初始化
