@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加生词</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            padding: 0.5rem;
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            width: 300px;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            font-size: 1.5rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #333;
+            color: white;
+            padding: 1rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">首页</a>
+        <a href="notknow.html">错词集合</a>
+        <a href="pinyinhanzi.html">看拼音写字</a>
+        <a href="addword.html">添加生词</a>
+    </nav>
+
+    <div class="container">
+        <h1>添加生词</h1>
+        <input type="text" id="newWord" placeholder="输入要添加的生词">
+        <button id="submitBtn">提交</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const {
+            createClient
+        } = supabase;
+        const supabaseClient = supabase.createClient('https://nrkepcamdijtioxltaqr.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ya2VwY2FtZGlqdGlveGx0YXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5NTkxODQsImV4cCI6MjA1NTUzNTE4NH0.pEdq389YURpn-UI3P3BmEQ8ttqUoi6-m5xs6ZJeJps0'
+        );
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const word = document.getElementById('newWord').value.trim();
+            const messageElement = document.getElementById('message');
+
+            if (!word) {
+                messageElement.textContent = '请输入有效的生词';
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('unknown_words')
+                    .insert([{ word: word }]);
+
+                if (error) throw error;
+
+                messageElement.textContent = '添加成功！';
+                document.getElementById('newWord').value = '';
+            } catch (err) {
+                console.error('添加失败:', err);
+                messageElement.textContent = '添加失败，请重试';
+            }
+        });
+    </script>
+</body>
+</html>
